@@ -75,7 +75,26 @@ for i in *.mol2
    ligname=$( echo "$i" | sed -e 's/\.prmtop//g')
    $pythonVersion $workingDirectory/$scriptDirectory/acpype.py -p $workingDirectory/$ligandDirectory/$ligname.prmtop -x $workingDirectory/$ligandDirectory/$ligname.inpcrd
  wait
+
+ # Clean up the filenames and ligand names in files
+
+   mv MOL_GMX.top $ligname"_GMX.top"
+   mv MOL_GMX.gro $ligname"_GMX.gro"
+   sed -i 's/MOL/LIG/g' $ligname"_GMX.gro"
+   sed -i 's/MOL/LIG/g' $ligname"_GMX.top"
+
+ # Clean up the folder
+
+   mkdir $ligname
+   mv $ligname"_GMX.gro" $ligname/
+   mv $ligname"_GMX.top" $ligname/
+
+   mkdir $ligname/AMBER
+   mv $ligname.* $ligname/AMBER
+   mv *.$ligname.in $ligname/AMBER
  done
 
+   rm *.*
+ 
  ###### DONE! ##########
 
