@@ -80,8 +80,6 @@ for i in *.mol2
 
    mv MOL_GMX.top $ligname"_GMX.top"
    mv MOL_GMX.gro $ligname"_GMX.gro"
-   sed -i 's/MOL/LIG/g' $ligname"_GMX.gro"
-   sed -i 's/MOL/LIG/g' $ligname"_GMX.top"
 
  # Clean up the folder
 
