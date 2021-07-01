@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # By Yasmin 2021-06-24 
-# Tested locally 2021-06-24
+# Tested locally 2021-07-01
 
 # This script creates ligand AMBER format toppology and lib files. 
 # AMBER top and lib files are then converted to GROMACS gro and top files.
@@ -11,11 +11,11 @@
 
 ####################### EDIT ONLY THESE PARAMETERS #########################################
 
+workingDirectory=/home/yasmin/Test          # Path to where this script is located
 AMBERPATH=/home/yasmin/amber20/amber.sh     # Path for the Amber installation
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 scriptDirectory=SCRIPTS                     # Path to python scripts
 pythonVersion=python3                       # Installed python version
-workingDirectory=/mnt/c/Users/Yasmin/Desktop/Test
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
 
