@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # By Yasmin 2021-06-24 
-# Tested locally 2021-06-24????
+# Tested locally 2021-07-01
 
 # This script solvates ligands in a chosen solvent for GROMACS simulations.
 
@@ -9,7 +9,7 @@
 
 ############################# EDIT THESE PARAMETERS #########################################
 
-workingDirectory=/mnt/c/Users/Yasmin/Desktop/Test # Path to where this script is located
+workingDirectory=/home/yasmin/Test          # Path to where this script is located
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 solventDirectory=SOLVENTS                   # Path to directory of solvents
 scriptDirectory=SCRIPTS                     # Path to python scripts
@@ -60,15 +60,56 @@ for ligname in *
             nosolvent=$(($totalresidues - $nosolutes))              # Get number of solvents
             rm tmp*.txt                                             # Clean up
 
-# Create master topology (.top) file and parameter file for solvent (.itp) 
+# Create master topology (.top) files 
 
-            cp $ligname"_GMX.top" ${ligname}_${solvents}.top        # Create a master topology file
+            # Get the header until atom types
+            sed -n -r '/MOL_GMX/,/Amb/p' $ligname"_GMX.top" > header.tmp    
+
+            # Get the atomtypes of ligand and solvent and remove duplicates
             cp $workingDirectory/$solventDirectory/$FF/$solvents/$solvname.itp .    # Copy solvent file to ligand directory
             sed -n -r '/atomtypes/,/^\s*$/p' $solvname.itp > solvatomtypes.tmp    # Get atomtypes of solvent
-            sed -n -r '/atomtypes/,/^\s*$/p' ${ligname}_${solvents}.top > ligatomtypes.tmp    # Get atomtypes of solvent
-            sed -i '1,2d;$d' *.tmp                                     # Remove first and last (empty) lines
-            cat solvatomtypes.tmp ligatomtypes.tmp > complex.tmp    # Put it together
-            awk '!_[$0]++' complex.tmp                              # Remove duplicate lines
+            sed -n -r '/atomtypes/,/^\s*$/p' $ligname"_GMX.top" > ligatomtypes.tmp    # Get atomtypes of solvent
+            sed -i '1,2d;$d' *atomtypes.tmp                                     # Remove first and last (empty) lines
+            cat solvatomtypes.tmp ligatomtypes.tmp > complexatomtypes.tmp    # Put it together
+            sort complexatomtypes.tmp | uniq > complex_sorted.tmp                   # Remove duplicate lines
+            echo -e "" >> complex_sorted.tmp                                   # Adds blank line at the end
+            
+            # Get ligand parameters and include solvent parameters
+            sed -n -r '/moleculetype/,/system/p' $ligname"_GMX.top" > ligparams.tmp # Get the ligand parameters
+            sed -i '$ d' ligparams.tmp                                     # Remove first and last (empty) lines
+            echo -e "#include \"$solvname.itp\"\n" >> ligparams.tmp # Add solvent parameters
+
+            sed -n -r '/system/,//p' $ligname"_GMX.top" > system.tmp # Get the system name parameters
+            echo -e " SOL              $nosolvent" >> system.tmp # Add the number of solvent molecules
+
+            # Put everuthing together into top files (charged and no-charge)
+            cat header.tmp complex_sorted.tmp ligparams.tmp system.tmp > ${ligname}_${solvents}.top # Create charged top-file
+            sed -i 's/MOL/LIG/g' ${ligname}_${solvents}.top     # Change all instances of MOL to LIG
+
+            cp ${ligname}_${solvents}.top ${ligname}_${solvents}"_0q.top" # Make no-charge version
+            sed -i "s/$solvname.itp/$solvname"_0q.itp"/g" ${ligname}_${solvents}"_0q.top"   # Change path to no-charge itp 
+            
+# Create parameter files for charged and uncharged solvents (.itp)
+            
+            # Create a solvent itp file from file copied from source for importing
+            sed -i '/moleculetype/,$!d' $solvname.itp                   # Make the charged solvent itp file
+
+            # Create a no-charge version for the atom types
+            sed -n -r '/moleculetype/,/mass/p' $solvname.itp > header_0q.tmp
+            sed -n -r '/mass/,/^\s*$/p' $solvname.itp > solvatoms.tmp    # Get atoms section of solvent
+            sed -i '1d;$d' solvatoms.tmp                                     # Remove first line and blank last line
+            awk '{print "     "$1"         "$2"      "$3"    "$4"     "$5"      "$6"    0.00000  "$8}' solvatoms.tmp  > solvatoms_0q.tmp
+            echo -e "" >> solvatoms_0q.tmp                                   # Adds blank line at the end
+
+            sed -n -r '/bonds/,//p' $solvname.itp > end.tmp         # Get the system name parameters                      
+            cat header_0q.tmp solvatoms_0q.tmp end.tmp > $solvname"_0q.itp"    # Create no-charge solvent itp file
+
+            cp ${ligname}_${solvents}.top ${ligname}_${solvents}"_0q.top"   # Create a no-charge ligand top file
+            sed -i 's/$solvname.itp/$solvname"_0q.itp"/g' ${ligname}_${solvents}"_0q.top" # Change the path to no-charge solvent
+
+# Clean up the folder
+
+            rm *.tmp                                            
             wait
         done
      wait
