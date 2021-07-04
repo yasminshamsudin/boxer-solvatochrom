@@ -11,7 +11,6 @@
 
 ####################### EDIT ONLY THESE PARAMETERS #########################################
 
-workingDirectory=/home/yasmin/Test          # Path to where this script is located
 AMBERPATH=/home/yasmin/amber20/amber.sh     # Path for the Amber installation
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 scriptDirectory=SCRIPTS                     # Path to python scripts
@@ -19,10 +18,12 @@ pythonVersion=python3                       # Installed python version
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
 
-chargeModel=bcc         # default: bcc = AM1-BCC
-verbosity=2             # default: 2
+workingDirectory=$(pwd)                     # Path to where this script is located
+
+chargeModel=bcc                             # default: bcc = AM1-BCC
+verbosity=2                                 # default: 2
 FFPATH=/home/yasmin/amber20_src/dat/leap/cmd/oldff/leaprc.ff99SBildn   # default: ~/amber20_src/dat/leap/cmd/oldff/leaprc.ff99SBildn
-ligFF=leaprc.gaff       # default: leaprc.gaff
+ligFF=leaprc.gaff                           # default: leaprc.gaff
 
 ######################## NO MORE EDITING PAST THIS LINE! ###################################
 
@@ -68,7 +69,7 @@ for i in *.mol2
  wait
  done
 
- # Convert to GROMACS files using acpype.py
+ # Convert to GROMACS files using acpype.py (uses GAFF parameters and ff99SB forcefield)
 
  for i in *.prmtop
  do

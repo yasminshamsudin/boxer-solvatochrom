@@ -9,18 +9,18 @@
 
 ############################# EDIT THESE PARAMETERS #########################################
 
-workingDirectory=/home/yasmin/Test          # Path to where this script is located
+FF=GAFF-Test                                # default force field: GAFF-Yasmin
+
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 solventDirectory=SOLVENTS                   # Path to directory of solvents
-scriptDirectory=SCRIPTS                     # Path to python scripts
-pythonVersion=python3                       # Installed python version
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
 
-FF=GAFF-Test         # default force field: GAFF-Yasmin
-boxtype=cubic        # default solvent box: cubic
-boxsize=2.0          # default radius (in nm): 2.0
-nosolutes=1          # default number of ligands: 1
+workingDirectory=$(pwd)                     # Path to where this script is located
+
+boxtype=cubic                               # default solvent box: cubic
+boxsize=2.0                                 # default radius (in nm): 2.0
+noligands=1                                 # default number of ligands: 1
 
 ######################## NO MORE EDITING PAST THIS LINE! ###################################
 
@@ -57,7 +57,7 @@ for ligname in *
             sed 'x;$!d' ${ligname}_${solvents}.gro > tmp.txt        # Fetch the second last row
             awk '{print $1}' tmp.txt > tmp2.txt                     # Get the first column
             totalresidues=$( grep -o -E '[0-9]+' tmp2.txt)          # Separate the residue number
-            nosolvent=$(($totalresidues - $nosolutes))              # Get number of solvents
+            nosolvent=$(($totalresidues - $noligands))              # Get number of solvents
             rm tmp*.txt                                             # Clean up
 
 # Create master topology (.top) files 
@@ -68,7 +68,7 @@ for ligname in *
             # Get the atomtypes of ligand and solvent and remove duplicates
             cp $workingDirectory/$solventDirectory/$FF/$solvents/$solvname.itp .    # Copy solvent file to ligand directory
             sed -n -r '/atomtypes/,/^\s*$/p' $solvname.itp > solvatomtypes.tmp    # Get atomtypes of solvent
-            sed -n -r '/atomtypes/,/^\s*$/p' $ligname"_GMX.top" > ligatomtypes.tmp    # Get atomtypes of solvent
+            sed -n -r '/atomtypes/,/^\s*$/p' $ligname"_GMX.top" > ligatomtypes.tmp    # Get atomtypes of ligand
             sed -i '1,2d;$d' *atomtypes.tmp                                     # Remove first and last (empty) lines
             cat solvatomtypes.tmp ligatomtypes.tmp > complexatomtypes.tmp    # Put it together
             sort complexatomtypes.tmp | uniq > complex_sorted.tmp                   # Remove duplicate lines
@@ -112,6 +112,9 @@ for ligname in *
             rm *.tmp                                            
             wait
         done
-     wait
+     mkdir GMXPREP
+     mv $ligname"_GMX".* GMXPREP/
+     mv $ligname.gro GMXPREP/
+     cd ..
     done
 done
