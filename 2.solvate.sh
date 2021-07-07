@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # By Yasmin 2021-06-24 
-# Tested locally 2021-07-01
+# Tested locally 2021-07-07
 
 # This script solvates ligands in a chosen solvent for GROMACS simulations.
 
@@ -77,17 +77,17 @@ for ligname in *
             # Get ligand parameters and include solvent parameters
             sed -n -r '/moleculetype/,/system/p' $ligname"_GMX.top" > ligparams.tmp # Get the ligand parameters
             sed -i '$ d' ligparams.tmp                                     # Remove first and last (empty) lines
-            echo -e "#include \"$solvname.itp\"\n" >> ligparams.tmp # Add solvent parameters
+            echo -e "#include \"../$solvname.itp\"\n" >> ligparams.tmp # Add solvent parameters
 
             sed -n -r '/system/,//p' $ligname"_GMX.top" > system.tmp # Get the system name parameters
             echo -e " SOL              $nosolvent" >> system.tmp # Add the number of solvent molecules
 
-            # Put everuthing together into top files (charged and no-charge)
+            # Put everything together into top files (charged and no-charge)
             cat header.tmp complex_sorted.tmp ligparams.tmp system.tmp > ${ligname}_${solvents}.top # Create charged top-file
             sed -i 's/MOL/LIG/g' ${ligname}_${solvents}.top     # Change all instances of MOL to LIG
 
             cp ${ligname}_${solvents}.top ${ligname}_${solvents}"_0q.top" # Make no-charge version
-            sed -i "s/$solvname.itp/$solvname"_0q.itp"/g" ${ligname}_${solvents}"_0q.top"   # Change path to no-charge itp 
+            sed -i "s/$solvname/$solvname"_0q"/g" ${ligname}_${solvents}"_0q.top"   # Change path to no-charge solvent itp  
             
 # Create parameter files for charged and uncharged solvents (.itp)
             
@@ -104,17 +104,16 @@ for ligname in *
             sed -n -r '/bonds/,//p' $solvname.itp > end.tmp         # Get the system name parameters                      
             cat header_0q.tmp solvatoms_0q.tmp end.tmp > $solvname"_0q.itp"    # Create no-charge solvent itp file
 
-            cp ${ligname}_${solvents}.top ${ligname}_${solvents}"_0q.top"   # Create a no-charge ligand top file
-            sed -i 's/$solvname.itp/$solvname"_0q.itp"/g' ${ligname}_${solvents}"_0q.top" # Change the path to no-charge solvent
-
 # Clean up the folder
 
             rm *.tmp                                            
             wait
+            cd $workingDirectory/$solventDirectory/$FF/
         done
+    done
+    cd $workingDirectory/$ligandDirectory/$ligname/
      mkdir GMXPREP
      mv $ligname"_GMX".* GMXPREP/
      mv $ligname.gro GMXPREP/
-     cd ..
-    done
+     cd $workingDirectory/$ligandDirectory
 done

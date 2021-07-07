@@ -2,7 +2,7 @@
 
 # By Yasmin 2021-07-01 
 # Tested locally 2021-07-02
-# Tested on Sherlock 2021-07-02
+# Tested on Sherlock 2021-07-07
 
 # This script prepares input files for GROMACS simulations and analysis scripts.
 
@@ -78,16 +78,29 @@ for ligname in *
                         carboncharge=$( head -1 charges.tmp )
                         oxygencharge=$( tail -1 charges.tmp )
                         fi
+
+                else # If not C=O probe
+                carbonno=$(($probeAtomno1))
+                oxygenno=$(($probeAtomno2))
+
+                # Get the probe atom charges
+                grep "\s$carbono\s" ligatomtypes.tmp > cprobe.tmp
+                grep "\s$oxygenno\s" ligatomtypes.tmp > oprobe.tmp
+                cat cprobe.tmp oprobe.tmp > probes.tmp
+                awk '{print $7}' probes.tmp > charges.tmp
+                carboncharge=$( head -1 charges.tmp )
+                oxygencharge=$( tail -1 charges.tmp )
+
                 fi
                 rm *.tmp
         done
         cd ..
         
-        # Make the probe index file (.ndx)
+        # Make the probe index file (.ndx) (only one per ligand needed)
         echo -e "[$probeAtom1"-"$probeAtom2]"'\n' > probe.ndx
         echo -e "$carbonno $oxygenno" >> probe.ndx
 
-        # Make the BLCO.py script
+        # Make the Electric field calculation script
         echo -e "# The purpose of this script is to calculate electric fields for a solute in solvent with carbonyl vibrational probe." > BLCO.py
         echo -e "# This file has been automatically generated."'\n' >> BLCO.py
         echo -e "import sys" >> BLCO.py
@@ -157,7 +170,7 @@ for ligname in *
         echo -e "emstep      = 0.01      ; Energy step size" >> min.mdp
         echo -e "nsteps		= 50000	  	; Maximum number of (minimization) steps to perform"'\n' >> min.mdp
         echo -e "; Parameters describing how to find the neighbors of each atom and how to calculate the interactions" >> min.mdp
-        echo -e "nstlist		    = 1		    ; Frequency to update the neighbor list and long range forces" >> min.mdp
+        echo -e "nstlist		    = 10	    ; Frequency to update the neighbor list and long range forces" >> min.mdp
         echo -e "cutoff-scheme   = Verlet" >> min.mdp
         echo -e "ns_type		    = grid		; Method to determine neighbor list (simple, grid)" >> min.mdp
         echo -e "coulombtype	    = PME		; Treatment of long range electrostatic interactions" >> min.mdp
@@ -230,7 +243,7 @@ for ligname in *
         echo -e "; Neighborsearching" >> npt.mdp
         echo -e "cutoff-scheme   = Verlet" >> npt.mdp
         echo -e "ns_type		    = grid		; search neighboring grid cells" >> npt.mdp
-        echo -e "nstlist		    = 10		; 20 fs, largely irrelevant with Verlet" >> npt.mdp
+        echo -e "nstlist		    = 10	; 20 fs, largely irrelevant with Verlet" >> npt.mdp
         echo -e "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)" >> npt.mdp
         echo -e "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)" >> npt.mdp
         echo -e "; Electrostatics" >> npt.mdp
@@ -265,7 +278,7 @@ for ligname in *
         echo -e "; Output control" >> md.mdp
         echo -e "nstxout		= 100		; save coordinates every 0.2 ps" >> md.mdp
         echo -e "nstfout		= 100		; save forces every 0.2 ps" >> md.mdp
-        echo -e "nstvout		= 0		; don't save velocities" >> md.mdp
+        echo -e "nstvout		= 0		; do not save velocities" >> md.mdp
         echo -e "nstenergy	= 5000		; save energies every 10.0 ps" >> md.mdp
         echo -e "nstlog		= 5000 		; update log file every 10.0 ps" >> md.mdp
         echo -e "nstxout-compressed  = 5000      ; save compressed coordinates every 10.0 ps (replaces nstxtcout)" >> md.mdp

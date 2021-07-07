@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # By Yasmin 2021-06-24 
-# Tested locally 2021-07-01
+# Tested locally 2021-07-07
 
 # This script creates ligand AMBER format toppology and lib files. 
 # AMBER top and lib files are then converted to GROMACS gro and top files.
