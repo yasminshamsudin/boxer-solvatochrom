@@ -1,0 +1,3 @@
+The files in this folder have been tested to work on the Stanford University Sherlock cluster.
+These files prepare structure and topology files for simulations in GROMACS starting from a pdb file.
+The analysis script extracts electric fields and standard deviations from simulations with and without charges.
