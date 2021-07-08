@@ -9,7 +9,7 @@
 
 ############################# EDIT THESE PARAMETERS #########################################
 
-FF=GAFF-Test                                # default force field: GAFF-Yasmin
+FF=GAFF-Tested                                # default force field: GAFF-Yasmin
 
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 solventDirectory=SOLVENTS                   # Path to directory of solvents
@@ -23,6 +23,7 @@ boxsize=2.0                                 # default radius (in nm): 2.0
 noligands=1                                 # default number of ligands: 1
 
 ######################## NO MORE EDITING PAST THIS LINE! ###################################
+
 
 cd $ligandDirectory
 

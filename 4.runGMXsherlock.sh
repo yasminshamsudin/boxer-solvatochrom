@@ -2,7 +2,7 @@
 
 # By Yasmin 2021-07-02 
 # Tested locally 2021-07-02
-# Tested on Sherlock 2021-07-05
+# Tested on Sherlock 2021-07-07
 
 # This script prepares job files for GROMACS simulations. 
 # This script submits files on the Stanford Sherlock cluster.
@@ -25,7 +25,7 @@ partitions=hns,iric,owners                  # Default for Boxers: hns
 workingDirectory=$(pwd)                     # Path to where this script is located
 
 nodes=1                                     # Default: 1
-cores=16                                    # Default: 16
+cores=8                                     # Default: 8
 
 ######################## NO MORE EDITING PAST THIS LINE! ###################################
 
@@ -40,11 +40,12 @@ for ligname in *
 
         # Assign Sherlock flags for running
         echo -e "#!/bin/bash" > COMPLEX.job
-        echo -e "#SBATCH --mail-type=ALL" >> COMPLEX.job
+        echo -e "#SBATCH --mail-type=END" >> COMPLEX.job
         echo -e "#SBATCH --job-name=COMPLEX" >> COMPLEX.job
         echo -e "#SBATCH -p $partitions" >> COMPLEX.job
         echo -e "#SBATCH -N $nodes" >> COMPLEX.job
-        echo -e "#SBATCH -n $cores" >> COMPLEX.job
+        echo -e "#SBATCH --ntasks-per-node=1" >> COMPLEX.job
+        echo -e "#SBATCH --cpus-per-task=$cores" >> COMPLEX.job
         echo -e "#SBATCH --time=$walltime"'\n' >> COMPLEX.job
 
         # Load gromacs and python modules
@@ -71,16 +72,16 @@ for ligname in *
         echo -e "gmx mdrun -v -deffnm COMPLEX_md"'\n' >> COMPLEX.job
 
         # Extract coordinates and forces from simulation
-        echo -e "gmx traj -s COMPLEX_md.tpr -f COMPLEX_md.trr -n probe.ndx -ox co_coords.xvg" >> COMPLEX.job
-        echo -e "gmx traj -s COMPLEX_md.tpr -f COMPLEX_md.trr -n probe.ndx -of co_forces.xvg" >> COMPLEX.job
+        echo -e "gmx traj -s COMPLEX_md.tpr -f COMPLEX_md.trr -n ../probe.ndx -ox co_coords.xvg" >> COMPLEX.job
+        echo -e "gmx traj -s COMPLEX_md.tpr -f COMPLEX_md.trr -n ../probe.ndx -of co_forces.xvg" >> COMPLEX.job
 
         # Re-run data collection with solvent charges neutralized
         echo -e "gmx grompp -f ../md.mdp -c COMPLEX_npt.gro -p COMPLEX_0q.top -o COMPLEX_md_0q.tpr" >> COMPLEX.job
         echo -e "gmx mdrun -rerun COMPLEX_md.trr -v -deffnm COMPLEX_md_0q"'\n' >> COMPLEX.job
 
         # Extract coordinates and forces from simulation of uncharged environment
-        echo -e "gmx traj -s COMPLEX_md_0q.tpr -f COMPLEX_md_0q.trr -n probe.ndx -ox co_coords_0q.xvg" >> COMPLEX.job
-        echo -e "gmx traj -s COMPLEX_md_0q.tpr -f COMPLEX_md_0q.trr -n probe.ndx -of co_forces_0q.xvg"'\n' >> COMPLEX.job
+        echo -e "gmx traj -s COMPLEX_md_0q.tpr -f COMPLEX_md_0q.trr -n ../probe.ndx -ox co_coords_0q.xvg" >> COMPLEX.job
+        echo -e "gmx traj -s COMPLEX_md_0q.tpr -f COMPLEX_md_0q.trr -n ../probe.ndx -of co_forces_0q.xvg"'\n' >> COMPLEX.job
         wait
 
         # Run analysis script to extract electric fields
@@ -97,7 +98,8 @@ for ligname in *
         complex=$( echo "$i" | sed -e 's/\_0q.top//g')
         mkdir $complex
         sed "s/COMPLEX/$complex/g" COMPLEX.job > $complex/$complex.job
-        mv $complex* $complex/
+        mv $complex.* $complex/
+        mv $complex*.top $complex/
         cd $complex
 
         # Submit the run on Sherlock

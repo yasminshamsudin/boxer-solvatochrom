@@ -27,6 +27,7 @@ ligFF=leaprc.gaff                           # default: leaprc.gaff
 
 ######################## NO MORE EDITING PAST THIS LINE! ###################################
 
+
 # Set the AMBER path to find all modules
 
 source $AMBERPATH
