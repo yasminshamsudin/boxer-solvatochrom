@@ -3,6 +3,7 @@
 # By Yasmin 2021-07-02 
 # Tested locally 2021-07-02
 # Tested on Sherlock 2021-07-05
+# Added replicates functionality 2021-07-12
 
 # This script prepares job files for GROMACS simulations. 
 # This script submits files on the Stanford Sherlock cluster.
@@ -27,6 +28,7 @@ workingDirectory=$(pwd)                     # Path to where this script is locat
 nodes=1                                     # Default: 1
 cores=8                                     # Default: 8
 
+replicates=5				# Default:1
 ######################## NO MORE EDITING PAST THIS LINE! ###################################
 
 cd $ligandDirectory
@@ -89,23 +91,29 @@ for ligname in *
         echo -e "cp ../BLCO.py ." >> COMPLEX.job
         echo -e "python BLCO.py" >> COMPLEX.job
         echo -e "wait"'\n' >> COMPLEX.job
-        echo -e "rm BLCO.py ." >> COMPLEX.job
-        echo -e "mv *COMPLEX* COMPLEX/" >> COMPLEX.job
+        echo -e "rm BLCO.py" >> COMPLEX.job
+        #echo -e "mv *COMPLEX* COMPLEX/" >> COMPLEX.job
 
 # Customize job-files for all solvents
 
     for i in *0q.top   # Get the name of each solvent
      do
+	# Create replicates
+	for (( n = 1; n <= $replicates; n++ ))
+	do
         complex=$( echo "$i" | sed -e 's/\_0q.top//g')
-        mkdir $complex
-        sed "s/COMPLEX/$complex/g" COMPLEX.job > $complex/$complex.job
-        mv $complex.* $complex/
-        mv $complex*.top $complex/
-        cd $complex
+        mkdir $complex"_s"$n
+        sed "s/COMPLEX/$complex/g" COMPLEX.job > $complex"_s"$n/$complex.job
+        cp $complex.* $complex"_s"$n/	
+        cp $complex*.top $complex"_s"$n/
+        cd $complex"_s"$n
 
         # Submit the run on Sherlock
-        sbatch $complex.job
+	sbatch $complex.job
         cd ..
+	done
+        rm $complex.*
+	rm $complex*.top
     done
   
     cd ..
