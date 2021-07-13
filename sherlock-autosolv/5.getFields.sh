@@ -2,7 +2,7 @@
 
 # By Yasmin 2021-07-02 
 # Tested locally 2021-07-02
-# Tested on Sherlock 2021-07-05
+# Tested on Sherlock 2021-07-12
 
 # This script prepares job files for GROMACS simulations. 
 # This script submits files on the Stanford Sherlock cluster.
