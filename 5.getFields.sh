@@ -2,7 +2,7 @@
 
 # By Yasmin 2021-07-02 
 # Tested locally 2021-07-02
-# Tested on Sherlock 2021-07-07
+# Tested on Sherlock 2021-07-12
 
 # This script prepares job files for GROMACS simulations. 
 # This script submits files on the Stanford Sherlock cluster.
@@ -11,8 +11,6 @@
 # Requires access on Stanford's Sherlock cluster. Can be modified for other clusters.
 
 ############################# EDIT THESE PARAMETERS #########################################
-
-walltime=3:00:00                            # Default for solvatochromism: 3:00:00
 
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 solventDirectory=SOLVENTS                   # Path to directory of solvents
@@ -36,10 +34,10 @@ for ligname in *
 # Repeat for all solvents
 
         cd $workingDirectory/$solventDirectory/$FF/
-
+        
         # Get the solvent name
         for solvent in *
-         do
+	 do
            cd $workingDirectory/$ligandDirectory/$ligname/
            echo -e "$solvent" > $ligname.$solvent.name.tmp
 
@@ -52,7 +50,8 @@ for ligname in *
 
         # Put it all together
         cd ..
-        paste $ligname.$solvent.name.tmp $ligname.$solvent.aveField.tmp $ligname.$solvent.stdDev.tmp > $ligname.$solvent.tmp        cat combinedfields.tmp $ligname.$solvent.tmp > combined.tmp
+        paste $ligname.$solvent.name.tmp $ligname.$solvent.aveField.tmp $ligname.$solvent.stdDev.tmp > $ligname.$solvent.tmp
+        cat combinedfields.tmp $ligname.$solvent.tmp > combined.tmp
         cp combined.tmp combinedfields.tmp
         done
 
