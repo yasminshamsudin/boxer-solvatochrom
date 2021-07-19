@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # By Yasmin 2021-06-24 
-# Tested locally 2021-07-07
+# 2021-07-07 Tested locally 
+# 2021-07-18 Updated to remove SCRIPTS directory
 
 # This script creates ligand AMBER format toppology and lib files. 
 # AMBER top and lib files are then converted to GROMACS gro and top files.
@@ -13,7 +14,6 @@
 
 AMBERPATH=/home/groups/sboxer/amberV100/amber.sh     # Path for the Amber installation (locally on Yasmin: /home/yasmin/amber20/amber.sh)
 ligandDirectory=LIGANDS                     # Path to the ligand directory
-scriptDirectory=SCRIPTS                     # Path to python scripts
 pythonVersion=python                       # Installed python version
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
@@ -78,7 +78,7 @@ for i in *.mol2
  for i in *.prmtop
  do
    ligname=$( echo "$i" | sed -e 's/\.prmtop//g')
-   $pythonVersion $workingDirectory/$scriptDirectory/acpype.py -p $workingDirectory/$ligandDirectory/$ligname.prmtop -x $workingDirectory/$ligandDirectory/$ligname.inpcrd
+   $pythonVersion $workingDirectory/acpype.py -p $workingDirectory/$ligandDirectory/$ligname.prmtop -x $workingDirectory/$ligandDirectory/$ligname.inpcrd
  wait
 
  # Clean up the filenames and ligand names in files
