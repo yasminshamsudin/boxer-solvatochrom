@@ -4,6 +4,7 @@
 # Tested locally 2021-07-02
 # Tested on Sherlock 2021-07-05
 # Added replicates functionality 2021-07-12
+# Tested by Zhe on Sherlock 2021-07-17
 
 # This script prepares job files for GROMACS simulations. 
 # This script submits files on the Stanford Sherlock cluster.
@@ -13,13 +14,13 @@
 
 ############################# EDIT THESE PARAMETERS #########################################
 
-walltime=3:00:00                            # Default for solvatochromism: 3:00:00
+walltime=4:00:00                            # Default for solvatochromism: 4:00:00
 
 ligandDirectory=LIGANDS                     # Path to the ligand directory
 scriptDirectory=SCRIPTS                     # Path to python scripts
 pythonVersion=python                        # Installed python version
 
-partitions=hns,iric,owners                  # Default for Boxers: hns
+partitions=hns		                  # Default for Boxers: hns
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
 
