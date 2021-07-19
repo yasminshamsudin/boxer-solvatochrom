@@ -17,7 +17,6 @@
 walltime=4:00:00                            # Default for solvatochromism: 4:00:00
 
 ligandDirectory=LIGANDS                     # Path to the ligand directory
-scriptDirectory=SCRIPTS                     # Path to python scripts
 pythonVersion=python                        # Installed python version
 
 partitions=hns		                  # Default for Boxers: hns
