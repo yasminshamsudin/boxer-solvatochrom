@@ -19,7 +19,7 @@ ligandDirectory=LIGANDS                     # Path to the ligand directory
 scriptDirectory=SCRIPTS                     # Path to python scripts
 pythonVersion=python                        # Installed python version
 
-partitions=hns,iric,owners                  # Default for Boxers: hns
+partitions=hns		                  # Default for Boxers: hns
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
 
