@@ -19,9 +19,6 @@ probeAtomno1=0                               # Default for automated C atomnumbe
 probeAtomno2=0                               # Default for automated atomnumber allocation: 0
 
 ligandDirectory=LIGANDS                     # Path to the ligand directory
-solventDirectory=SOLVENTS                   # Path to directory of solvents
-scriptDirectory=SCRIPTS                     # Path to python scripts
-pythonVersion=python3                       # Installed python version
 
 ############ Advanced modelling. Only edit if you know what you are doing! #################
 
